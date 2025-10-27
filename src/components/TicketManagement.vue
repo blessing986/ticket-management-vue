@@ -12,6 +12,7 @@
     <nav class="bg-white shadow-sm">
       <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
+          <!-- Logo -->
           <div class="flex items-center gap-2">
             <div
               class="bg-linear-to-br from-blue-600 to-purple-600 p-2 rounded-lg"
@@ -25,7 +26,8 @@
             </span>
           </div>
 
-          <div class="flex items-center gap-4">
+          <!-- Desktop Menu -->
+          <div class="hidden md:flex items-center gap-4">
             <button
               @click="onNavigate('dashboard')"
               class="px-3 py-2 md:px-6 text-sm md:text-base text-gray-700 font-medium hover:text-blue-600 transition-all duration-300 hover:scale-105 cursor-pointer"
@@ -40,18 +42,70 @@
               Logout
             </button>
           </div>
+
+          <!-- Mobile Menu Toggle -->
+          <button
+            class="md:hidden p-2 rounded-md hover:bg-gray-100 transition"
+            @click="toggleMenu"
+          >
+            <component
+              :is="isOpen ? XIcon : MenuIcon"
+              class="w-6 h-6 text-gray-700"
+            />
+          </button>
         </div>
       </div>
+
+      <!-- Mobile Dropdown -->
+      <transition name="slide">
+        <div
+          v-if="isOpen"
+          class="md:hidden border-t border-gray-100 bg-white px-4 pb-4"
+        >
+          <div class="flex flex-col gap-3 pt-3">
+            <button
+              @click="
+                () => {
+                  onNavigate('dashboard');
+                  toggleMenu();
+                }
+              "
+              class="w-full text-left px-3 py-2 text-gray-700 font-medium hover:text-blue-600 transition-all duration-300"
+            >
+              Dashboard
+            </button>
+            <button
+              @click="
+                () => {
+                  onLogout();
+                  toggleMenu();
+                }
+              "
+              class="flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-300 hover:scale-105 transform font-semibold cursor-pointer"
+            >
+              <LogOutIcon size="16" />
+              Logout
+            </button>
+          </div>
+        </div>
+      </transition>
     </nav>
 
     <!-- Main -->
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
-      <div class="flex justify-between items-center mb-8">
-        <h2 class="text-3xl font-bold text-gray-800">Ticket Management</h2>
+      <div
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
+      >
+        <h2
+          class="text-2xl sm:text-3xl font-bold text-gray-800 text-center sm:text-left"
+        >
+          Ticket Management
+        </h2>
+
         <button
           @click="toggleForm"
-          class="flex items-center gap-2 w-full md:w-auto px-6 py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 transform font-semibold cursor-pointer"
+          class="flex items-center justify-center gap-2 w-full sm:w-auto px-5 sm:px-6 py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 transform font-semibold cursor-pointer"
         >
           <PlusIcon size="20" />
           Create Ticket
@@ -245,22 +299,27 @@ import {
   Trash2Icon,
   LogOutIcon,
   TicketIcon,
+  MenuIcon,
+  XIcon,
 } from "lucide-vue-next";
 import Toast from "./Toast.vue";
 import Footer from "./Footer.vue";
 
-// Props
 defineProps({
   onNavigate: Function,
   onLogout: Function,
 });
 
-// State
 const tickets = ref([]);
 const showForm = ref(false);
 const editingTicket = ref(null);
 const deleteConfirm = ref(null);
 const toast = ref(null);
+const isOpen = ref(false);
+
+function toggleMenu() {
+  isOpen.value = !isOpen.value;
+}
 
 const formData = ref({
   title: "",
